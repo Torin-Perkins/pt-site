@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Personal Training & Nutrition{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Transform Your Body, Transform Your Life</h1>
+            <p class="hero-subtitle">Professional Personal Training & Nutrition Coaching</p>
+            <a href="#plans" class="btn btn-primary">View Plans</a>
+        </div>
+    </div>
+</section>
+
+<section id="about" class="about-section">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-image">
+                <img src="{{ url_for('static', filename='images/trainer-photo.jpg') }}" alt="Your Name" onerror="this.src='https://via.placeholder.com/400x500?text=Your+Photo'">
+            </div>
+            <div class="about-content">
+                <h2>About Me</h2>
+                <p>Welcome! I'm passionate about helping people achieve their fitness and nutrition goals through personalized coaching and sustainable lifestyle changes.</p>
+
+                <h3>My Philosophy</h3>
+                <p>I believe in a holistic approach to health and fitness. My training methodology focuses on:</p>
+                <ul>
+                    <li><strong>Evidence-Based Training:</strong> Programs backed by science and proven results</li>
+                    <li><strong>Sustainable Nutrition:</strong> No crash diets, just real food and lasting habits</li>
+                    <li><strong>Individual Approach:</strong> Every body is different, your plan should be too</li>
+                    <li><strong>Accountability & Support:</strong> I'm with you every step of the journey</li>
+                </ul>
+
+                <p>Whether you're looking to lose weight, build muscle, improve athletic performance, or simply live a healthier lifestyle, I'm here to guide you.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="plans" class="plans-section">
+    <div class="container">
+        <h2 class="section-title">Choose Your Plan</h2>
+        <p class="section-subtitle">Flexible options to fit your goals and lifestyle</p>
+
+        <div class="plans-grid">
+            {% for slug, plan in plans.items() %}
+            <div class="plan-card">
+                <div class="plan-header">
+                    <h3>{{ plan.title }}</h3>
+                </div>
+                <div class="plan-body">
+                    <p>{{ plan.description }}</p>
+                    <ul class="plan-features">
+                        {% for feature in plan.features[:3] %}
+                        <li>{{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="plan-footer">
+                    <a href="{{ url_for('plan', plan_slug=slug) }}" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
