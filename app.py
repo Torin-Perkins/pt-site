@@ -32,7 +32,7 @@ PLANS = {
             'Supplement recommendations',
             'Lifetime access to your plan'
         ],
-        'price': 'Contact for pricing'
+        'price': '$40'
     },
     'monthly-nutrition': {
         'title': 'Monthly Nutrition Plan',
@@ -45,7 +45,7 @@ PLANS = {
             'Recipe ideas and meal prep tips',
             'Adjustments based on results'
         ],
-        'price': 'Contact for pricing'
+        'price': '$40 + $20/month'
     },
     'monthly-coaching': {
         'title': 'Monthly Online Coaching',
@@ -59,13 +59,17 @@ PLANS = {
             'Direct messaging support',
             'Progress tracking and adjustments'
         ],
-        'price': 'Contact for pricing'
+        'price': '$150/month'
     }
 }
 
 @app.route('/')
 def home():
     return render_template('home.html', plans=PLANS)
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 @app.route('/plan/<plan_slug>')
 def plan(plan_slug):
@@ -81,7 +85,7 @@ def submit_inquiry():
         phone = request.form.get('phone')
         plan_title = request.form.get('plan_title')
         message = request.form.get('message', '')
-
+        
         # Create email message
         email_body = f"""
 New inquiry received:
@@ -97,19 +101,19 @@ Message:
 ---
 Sent from your Personal Training Website
         """
-
+        
         msg = Message(
             subject=f'New Inquiry: {plan_title}',
             recipients=[app.config['RECIPIENT_EMAIL']],
             body=email_body
         )
-
+        
         mail.send(msg)
         flash('Thank you! Your inquiry has been submitted successfully. I will get back to you soon.', 'success')
     except Exception as e:
         print(f"Error sending email: {e}")
         flash('There was an error submitting your inquiry. Please email me directly.', 'error')
-
+    
     return redirect(request.referrer or url_for('home'))
 
 @app.route('/thank-you')
@@ -117,4 +121,4 @@ def thank_you():
     return render_template('thank_you.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)

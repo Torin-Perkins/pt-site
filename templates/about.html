@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}About - Personal Training & Nutrition{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container">
+        <h1>About Me</h1>
+        <p class="page-hero-subtitle">My transformation journey and how I can help you achieve yours</p>
+    </div>
+</section>
+
+<section class="about-page">
+    <div class="container">
+
+        <!-- Before and After Section -->
+        <div class="transformation-section">
+            <h2>My Transformation</h2>
+            <div class="before-after-container">
+                <div class="before-after-card">
+                    <img src="{{ url_for('static', filename='images/trainer-before.jpg') }}" alt="Before transformation" onerror="this.src='https://via.placeholder.com/400x500?text=Before+Photo'">
+                    <div class="ba-label">Before</div>
+                </div>
+                <div class="transformation-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </div>
+                <div class="before-after-card">
+                    <img src="{{ url_for('static', filename='images/trainer-after.jpg') }}" alt="After transformation" onerror="this.src='https://via.placeholder.com/400x500?text=After+Photo'">
+                    <div class="ba-label">After</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Journey Story -->
+        <div class="journey-section">
+            <h2>My Journey</h2>
+            <div class="journey-content">
+                <p class="journey-intro">
+                    My fitness journey wasn't always a success story. Like many people, I had to overcome significant obstacles—both physical and mental—to become the person I am today.
+                </p>
+
+                <div class="journey-story">
+                    <h3>The Beginning</h3>
+                    <p>
+                        In my adolescent life, I struggled with commitment to any sort of physical activity. I grew into a depressive state during the COVID-19 lockdown and lost what little discipline I had; I gained 70 lbs and was disgusted with myself. This deep loathing festered into an eating disorder that had me consuming less than 500 calories a day. Yes, I lost weight, but I also passed out in the gym. As soon as I was tempted with food, I swung the other direction and gained all the weight back. My confidence was at an all-time low—I felt awful, and couldn't have felt worse about myself.
+                    </p>
+
+                    <h3>The Transformation</h3>
+                    <p>
+                        A switch flipped when I met my training partner. He gave me the push I needed to actually make the change I already wanted to make. Through ups and downs, he pushed me and, reciprocally, I pushed him. We learned about training together and devoted ourselves to our craft. Over 4 years, I was able to develop a physique I am proud of and compete in bodybuilding. But more importantly, I learned that transformation isn't a solo journey—it's exponentially easier with someone in your corner who believes in you.
+                    </p>
+
+                    <h3>My Philosophy Today</h3>
+                    <p>
+                        Every single person deserves to feel confident, healthy, and strong. The foundation of this starts with physical fitness and discipline. Sticking to new habits isn't easy, but with a friend by your side, it becomes a whole lot easier. I am a friend first and a coach second. This isn't just about lifting weights or counting macros—it's about building lasting habits, developing mental resilience, and creating a lifestyle you can sustain. I believe in education over instruction; I want my clients to understand not just what they're doing, but why they're doing it, so they can own their transformation.
+                    </p>
+
+                    <h3>Why I Coach</h3>
+                    <p>
+                        I coach because I know what it's like to be at your lowest point, and I know what it takes to climb back up. Seeing my clients transform—not just physically, but mentally and emotionally—is the most rewarding experience of my life. I don't just want to help you reach your goals; I want to help you become the best version of yourself. My passion is helping people realize their potential and proving to themselves what they're truly capable of. When you succeed, I succeed. We're in this together, and I'm committed to being your biggest advocate every step of the way.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="about-cta">
+            <h2>Ready to Start Your Transformation?</h2>
+            <p>Let's work together to achieve your fitness and nutrition goals</p>
+            <a href="{{ url_for('home') }}#plans" class="btn btn-primary btn-lg">View Training Plans</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
