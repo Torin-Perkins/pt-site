@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_mail import Mail, Message
 import os
 from dotenv import load_dotenv
+import pandas as pd
+import re
 
 load_dotenv()
 
@@ -63,6 +65,19 @@ PLANS = {
     }
 }
 
+def load_exercises():
+    df = pd.read_csv('exercise_list.csv')
+    ex_list = []
+    for _, row in df.iterrows():
+        ex_list.append({
+            'name': row['name'], 
+            'muscle': row['muscle_groups'],
+            'keywords': [k.strip().lower() for k in str(row['keywords']).split(',')],
+            'youtube': fix_youtube_url(row['video'])
+        })
+    return ex_list
+
+
 @app.route('/')
 def home():
     return render_template('home.html', plans=PLANS)
@@ -119,6 +134,47 @@ Sent from your Personal Training Website
 @app.route('/thank-you')
 def thank_you():
     return render_template('thank_you.html')
+
+def smart_search(exercises, query):
+    if not query:
+        return exercises
+    # Split query into words, ignore extra whitespace
+    query_words = re.split(r'\s+', query.strip().lower())
+    results = []
+    for ex in exercises:
+        searchable = [
+            ex['name'].lower(),
+            ex['muscle'].lower(),
+            ' '.join(ex['keywords'])
+        ]
+        # If any query word appears in any searchable field, keep it
+        if any(qw in field for qw in query_words for field in searchable):
+            results.append(ex)
+    return results
+
+def fix_youtube_url(url):
+    # If standard embed, pass through
+    if "/embed/" in url:
+        return url
+    # If shorts, convert to embed
+    shorts_pattern = r'youtube.com/shorts/([\w-]+)'
+    match = re.search(shorts_pattern, url)
+    if match:
+        vid_id = match.group(1)
+        return f'https://www.youtube.com/embed/{vid_id}'
+    # If watch?v= format
+    if 'watch?v=' in url:
+        vid_id = url.split('watch?v=')[1]
+        return f'https://www.youtube.com/embed/{vid_id}'
+    # Return as-is if unrecognized
+    return url
+
+@app.route('/cheat_sheet')
+def cheat_sheet():
+    query = request.args.get('q', '')
+    exercises = load_exercises()
+    results = smart_search(exercises, query)
+    return render_template('cheat_sheet.html', exercises=results, q=query)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

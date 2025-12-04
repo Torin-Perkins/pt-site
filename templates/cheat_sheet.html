@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Exercise Cheat Sheet{% endblock %}
+
+{% block content %}
+<section class="cheat-sheet">
+  <div class="container">
+    <h1>Exercise Cheat Sheet</h1>
+    <form method="get" action="{{ url_for('cheat_sheet') }}" class="cheat-form">
+      <input 
+        type="text" 
+        name="q" 
+        placeholder="Search by exercise name, muscle group, or keyword..." 
+        value="{{ q }}" 
+        autocomplete="off"
+        style="width: 50%; padding: 0.75rem; font-size: 1.1rem;"
+      >
+      <button type="submit" class="btn btn-primary" style="margin-left: 10px;">Search</button>
+    </form>
+    <br>
+    <table class="exercise-table" style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background-color: #f5f7fa;">
+          <th style="padding:12px;border-bottom:1px solid #eaeaea;">Name</th>
+          <th style="padding:12px;border-bottom:1px solid #eaeaea;">Muscle Group</th>
+          <th style="padding:12px;border-bottom:1px solid #eaeaea;">Video</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ex in exercises %}
+        <tr>
+          <td style="padding:8px;">{{ ex.name }}</td>
+          <td style="padding:8px;">{{ ex.muscle }}</td>
+          <td style="padding:8px;">
+            <iframe 
+              width="280" 
+              height="158" 
+              src="{{ ex.youtube }}" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+              style="border-radius:8px;"
+            ></iframe>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if not exercises %}
+      <div style="margin-top:2em; color:#888;">No exercises found matching your search.</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
