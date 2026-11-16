@@ -63,8 +63,6 @@ PLANS = {
             'Evidence-based supplement recommendations',
             'Yours to keep for good',
         ],
-        'price': '$40',
-        'price_note': 'one-time',
         'featured': False,
     },
     'monthly-nutrition': {
@@ -80,8 +78,6 @@ PLANS = {
             'Recipe ideas and meal-prep tips',
             'Email support between updates',
         ],
-        'price': '$40',
-        'price_note': 'setup + $20/mo',
         'featured': False,
     },
     'monthly-coaching': {
@@ -98,8 +94,6 @@ PLANS = {
             'Direct messaging support',
             'Joint-friendly exercise swaps when life happens',
         ],
-        'price': '$150/mo',
-        'price_note': 'cancel anytime',
         'featured': True,
     },
 }
