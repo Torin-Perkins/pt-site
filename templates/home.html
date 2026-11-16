@@ -1,74 +1,126 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Personal Training & Nutrition{% endblock %}
-
 {% block content %}
 <section class="hero">
-    <div class="container">
+    <div class="container hero-grid">
         <div class="hero-content">
-            <h1>Transform Your Body, Transform Your Life</h1>
-            <p class="hero-subtitle">Professional Personal Training & Nutrition Coaching</p>
-            <a href="#plans" class="btn btn-primary">View Plans</a>
+            <p class="eyebrow">Online coaching for adults 30–60</p>
+            <h1>Your strongest years<br><span class="highlight">aren't behind you.</span></h1>
+            <p class="hero-subtitle">Personal training and nutrition coaching built for busy adults. Whether you're counting down to your wedding, ready to lose weight for good, or chasing a bodybuilding physique, you'll get a plan that fits your life, your joints and your schedule.</p>
+            <div class="hero-actions">
+                <a href="#plans" class="btn btn-primary btn-lg">See Coaching Plans</a>
+                <a href="#goals" class="btn btn-ghost btn-lg">What's your goal?</a>
+            </div>
+            <ul class="hero-stats">
+                <li><strong>ISSA</strong><span>Certified trainer</span></li>
+                <li><strong>70 lbs</strong><span>My own transformation</span></li>
+                <li><strong>24 hrs</strong><span>Inquiry response</span></li>
+            </ul>
+        </div>
+        <div class="hero-image">
+            <img src="{{ url_for('static', filename='images/trainer-photo.jpg') }}" alt="Coach Torin Perkins" onerror="this.parentElement.style.display='none'">
         </div>
     </div>
 </section>
 
-<section id="about" class="about-section">
+<section id="goals" class="goals-section">
     <div class="container">
-        <div class="about-grid">
-            <div class="about-image">
-                <img src="{{ url_for('static', filename='images/trainer-photo.jpg') }}" alt="Torin Perkins" onerror="this.src='https://via.placeholder.com/400x500?text=Your+Photo'">
-            </div>
-            <div class="about-content">
-                <h2>About Me</h2>
-                <p>For years, I've struggled with obesity, eating disorders, and body dysmorphia. Finding a passion for fitness has allowed me to work through these issues and continue to learn. In every aspect of my personal and professional life, a commitment to health and fitness has allowed me to be the best I can be. I've spent years pushing myself to higher levels, learning what it takes to grow both physically and mentally. 
-
-I want to share this passion with others, helping them find the same strength and success within themselves. 
-
-Becoming an ISSA-certified trainer was the next step in my journey, giving me the tools to take what I’ve learned and apply it to the unique needs of each client I work with.
-
-When you train with me, you’re not just getting a coach — you’re getting someone who understands the grind, celebrates the victories, and pushes you to break past limits you didn’t think possible.</p>
-
-                <h3>My Philosophy</h3>
-                <p>I believe in a holistic approach to health and fitness. My training methodology focuses on:</p>
-                <ul>
-                    <li><strong>Evidence-Based Training:</strong> Programs backed by science and proven results</li>
-                    <li><strong>Sustainable Nutrition:</strong> No crash diets, just real food, lasting habits, and results</li>
-                    <li><strong>Individual Approach:</strong> Every body and mind is different, your plan should be too</li>
-                    <li><strong>Accountability & Support:</strong> My clients are my friends and I will always support my friends</li>
-                </ul>
-
-                <p>Whether you're looking to lose weight, build muscle, improve athletic performance, or simply live a healthier lifestyle, I'm here to guide you.</p>
-            </div>
+        <p class="eyebrow center">Who I coach</p>
+        <h2 class="section-title">Three goals. One coach in your corner.</h2>
+        <p class="section-subtitle">My clients are professionals, parents and partners in their 30s, 40s, 50s and 60s who want real results without living in the gym.</p>
+        <div class="goals-grid">
+            {% for goal in goals %}
+            <article class="goal-card">
+                <div class="goal-icon" aria-hidden="true">{{ goal.icon }}</div>
+                <h3>{{ goal.title }}</h3>
+                <p class="goal-tagline">{{ goal.tagline }}</p>
+                <p>{{ goal.description }}</p>
+            </article>
+            {% endfor %}
         </div>
+    </div>
+</section>
+
+<section class="age-section">
+    <div class="container age-grid">
+        <div>
+            <p class="eyebrow">Why age-smart training matters</p>
+            <h2>Training at 35 isn't training at 20. And training at 55 isn't training at 35.</h2>
+        </div>
+        <ul class="check-list">
+            <li><strong>Joint-friendly programming.</strong> Smart exercise selection and swaps for cranky knees, shoulders and backs.</li>
+            <li><strong>Muscle is medicine.</strong> Building and keeping lean muscle protects your metabolism, bones and energy as you age.</li>
+            <li><strong>Built for a real schedule.</strong> 3–5 efficient sessions a week that work around work, kids and travel.</li>
+            <li><strong>Recovery counts.</strong> Sleep, stress and hormones are part of the plan, not an afterthought.</li>
+            <li><strong>Sustainable nutrition.</strong> No crash diets. Real food, flexible targets and habits you can keep.</li>
+        </ul>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="container about-grid">
+        <div class="about-image">
+            <img src="{{ url_for('static', filename='images/trainer-after.jpg') }}" alt="Torin Perkins after his transformation" onerror="this.parentElement.style.display='none'">
+        </div>
+        <div class="about-content">
+            <p class="eyebrow">Meet your coach</p>
+            <h2>I've been where you are.</h2>
+            <p>I've battled obesity, an eating disorder and body dysmorphia. I gained 70 lbs, crash-dieted my way into passing out at the gym, and gained it all back. Fitness, done the right way, is what finally pulled me out, and it took me all the way to the bodybuilding stage.</p>
+            <p>As an ISSA-certified trainer, I take what I learned the hard way and turn it into a plan built for you: your goal, your body and your stage of life.</p>
+            <ul class="pill-list">
+                <li>Evidence-based training</li>
+                <li>Sustainable nutrition</li>
+                <li>Individual approach</li>
+                <li>Real accountability</li>
+            </ul>
+            <a href="{{ url_for('about') }}" class="btn btn-secondary">Read my story</a>
+        </div>
+    </div>
+</section>
+
+<section class="how-section">
+    <div class="container">
+        <p class="eyebrow center">How it works</p>
+        <h2 class="section-title">From inquiry to results</h2>
+        <ol class="steps">
+            <li><span class="step-num">1</span><h3>Tell me your goal</h3><p>Pick a plan and send a quick inquiry. Wedding date, target weight, show date: whatever you're working toward.</p></li>
+            <li><span class="step-num">2</span><h3>Get your plan</h3><p>I build training and nutrition around your schedule, equipment, history and any injuries.</p></li>
+            <li><span class="step-num">3</span><h3>Check in and adjust</h3><p>We track progress and tweak the plan so you keep moving forward, not just starting over.</p></li>
+        </ol>
     </div>
 </section>
 
 <section id="plans" class="plans-section">
     <div class="container">
-        <h2 class="section-title">Choose Your Plan</h2>
-        <p class="section-subtitle">Flexible options to fit your goals and lifestyle</p>
+        <p class="eyebrow center">Coaching plans</p>
+        <h2 class="section-title">Choose your plan</h2>
+        <p class="section-subtitle">Flexible options for every goal and budget.</p>
 
         <div class="plans-grid">
             {% for slug, plan in plans.items() %}
-            <div class="plan-card">
-                <div class="plan-header">
-                    <h3>{{ plan.title }}</h3>
-                </div>
-                <div class="plan-body">
-                    <p>{{ plan.description }}</p>
-                    <ul class="plan-features">
-                        {% for feature in plan.features[:3] %}
-                        <li>{{ feature }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="plan-footer">
-                    <a href="{{ url_for('plan', plan_slug=slug) }}" class="btn btn-secondary">Learn More</a>
-                </div>
+            <div class="plan-card{% if plan.featured %} featured{% endif %}">
+                <span class="plan-badge">{{ plan.tagline }}</span>
+                <h3>{{ plan.title }}</h3>
+                <p class="plan-price">{{ plan.price }} <small>{{ plan.price_note }}</small></p>
+                <p class="plan-desc">{{ plan.description }}</p>
+                <ul class="plan-features">
+                    {% for feature in plan.features[:4] %}
+                    <li>{{ feature }}</li>
+                    {% endfor %}
+                </ul>
+                <p class="plan-best"><strong>Best for:</strong> {{ plan.best_for }}</p>
+                <a href="{{ url_for('plan', plan_slug=slug) }}" class="btn {% if plan.featured %}btn-primary{% else %}btn-secondary{% endif %} btn-full-width">Get Started</a>
             </div>
             {% endfor %}
         </div>
+    </div>
+</section>
+
+<section class="cta-band">
+    <div class="container">
+        <h2>Got a date on the calendar?</h2>
+        <p>Weddings, reunions, vacations and competitions all go better with a plan. The earlier we start, the better the results.</p>
+        <a href="{{ url_for('plan', plan_slug='monthly-coaching') }}" class="btn btn-accent btn-lg">Start My Countdown</a>
     </div>
 </section>
 {% endblock %}

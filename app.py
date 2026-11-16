@@ -21,48 +21,87 @@ app.config['RECIPIENT_EMAIL'] = os.getenv('RECIPIENT_EMAIL')
 
 mail = Mail(app)
 
+# Goals I specialize in (shown on the home page and in the inquiry form)
+GOALS = [
+    {
+        'slug': 'wedding',
+        'icon': '💍',
+        'title': 'Wedding Prep',
+        'tagline': 'Look and feel your best on the big day.',
+        'description': 'A countdown plan built around your wedding date. We work backward from the day so you peak for the photos without crash dieting, and you keep the results for the honeymoon and after.',
+    },
+    {
+        'slug': 'weight-loss',
+        'icon': '📉',
+        'title': 'Weight Loss',
+        'tagline': 'Lose the fat, keep the muscle, keep it off.',
+        'description': 'No 500-calorie diets and no gimmicks. A sustainable deficit, strength training that protects your metabolism, and habits that fit a full-time job and a family.',
+    },
+    {
+        'slug': 'bodybuilding',
+        'icon': '🏆',
+        'title': 'Bodybuilding',
+        'tagline': 'Build a physique you are proud of.',
+        'description': 'Hypertrophy programming, smart progression and precise nutrition, whether you want to step on stage or simply carry more muscle into your 40s, 50s and beyond.',
+    },
+]
+
+GOAL_CHOICES = [g['title'] for g in GOALS] + ['General health & strength', 'Not sure yet']
+
 # Plan data
 PLANS = {
     'one-time-nutrition': {
-        'title': 'One-Time Nutrition Plan',
+        'title': 'Nutrition Blueprint',
         'slug': 'one-time-nutrition',
-        'description': 'A comprehensive, personalized nutrition plan designed specifically for your goals and lifestyle.',
+        'tagline': 'One-time plan',
+        'description': 'A personalized nutrition plan built around your goal, your schedule and the foods you actually like to eat.',
+        'best_for': 'Self-starters who already train and want their nutrition dialed in.',
         'features': [
-            'Complete macronutrient breakdown',
-            'Customized meal plans',
-            'Shopping lists included',
-            'Supplement recommendations',
-            'Lifetime access to your plan'
+            'Calorie and macronutrient targets for your goal',
+            'Customized meal plan that fits a busy week',
+            'Shopping list and simple meal-prep guide',
+            'Evidence-based supplement recommendations',
+            'Yours to keep for good',
         ],
-        'price': '$40'
+        'price': '$40',
+        'price_note': 'one-time',
+        'featured': False,
     },
     'monthly-nutrition': {
-        'title': 'Monthly Nutrition Plan',
+        'title': 'Nutrition Coaching',
         'slug': 'monthly-nutrition',
-        'description': 'Ongoing nutrition support with monthly plan updates and adjustments based on your progress.',
+        'tagline': 'Monthly support',
+        'description': 'Your nutrition plan, adjusted every month as your body, schedule and goals change.',
+        'best_for': 'Steady weight loss or a lean-out before an event.',
         'features': [
-            'Monthly plan revisions',
-            'Progress tracking',
-            'Email support',
-            'Recipe ideas and meal prep tips',
-            'Adjustments based on results'
+            'Everything in the Nutrition Blueprint',
+            'Monthly plan revisions based on your progress',
+            'Progress tracking (weight, measurements, photos)',
+            'Recipe ideas and meal-prep tips',
+            'Email support between updates',
         ],
-        'price': '$40 + $20/month'
+        'price': '$40',
+        'price_note': 'setup + $20/mo',
+        'featured': False,
     },
     'monthly-coaching': {
-        'title': 'Monthly Online Coaching',
+        'title': 'Complete Online Coaching',
         'slug': 'monthly-coaching',
-        'description': 'Complete training and nutrition coaching package for maximum results and accountability.',
+        'tagline': 'Most popular',
+        'description': 'Training and nutrition coaching together, with weekly accountability. My most complete option and the fastest path to real results.',
+        'best_for': 'Wedding countdowns, serious body transformations and bodybuilding.',
         'features': [
-            'Personalized training programs',
-            'Monthly nutrition plans',
-            'Weekly check-ins',
-            'Form review videos',
+            'Custom training program for your goal and equipment',
+            'Monthly nutrition plans and adjustments',
+            'Weekly check-ins and progress reviews',
+            'Form review on your lift videos',
             'Direct messaging support',
-            'Progress tracking and adjustments'
+            'Joint-friendly exercise swaps when life happens',
         ],
-        'price': '$150/month'
-    }
+        'price': '$150/mo',
+        'price_note': 'cancel anytime',
+        'featured': True,
+    },
 }
 
 def load_exercises():
@@ -80,7 +119,7 @@ def load_exercises():
 
 @app.route('/')
 def home():
-    return render_template('home.html', plans=PLANS)
+    return render_template('home.html', plans=PLANS, goals=GOALS)
 
 @app.route('/about')
 def about():
@@ -90,7 +129,7 @@ def about():
 def plan(plan_slug):
     if plan_slug not in PLANS:
         return redirect(url_for('home'))
-    return render_template('plan.html', plan=PLANS[plan_slug])
+    return render_template('plan.html', plan=PLANS[plan_slug], goal_choices=GOAL_CHOICES)
 
 @app.route('/submit-inquiry', methods=['POST'])
 def submit_inquiry():
@@ -99,6 +138,9 @@ def submit_inquiry():
         email = request.form.get('email')
         phone = request.form.get('phone')
         plan_title = request.form.get('plan_title')
+        goal = request.form.get('goal', '')
+        age_range = request.form.get('age_range', '')
+        event_date = request.form.get('event_date', '')
         message = request.form.get('message', '')
         
         # Create email message
@@ -109,12 +151,15 @@ Name: {name}
 Email: {email}
 Phone: {phone}
 Plan: {plan_title}
+Primary goal: {goal}
+Age range: {age_range}
+Event / wedding date: {event_date or 'n/a'}
 
 Message:
 {message}
 
 ---
-Sent from your Personal Training Website
+Sent from the Toro Fitness website
         """
         
         msg = Message(
@@ -130,6 +175,11 @@ Sent from your Personal Training Website
         flash('There was an error submitting your inquiry. Please email me directly.', 'error')
     
     return redirect(request.referrer or url_for('home'))
+
+@app.context_processor
+def inject_year():
+    from datetime import date
+    return {'current_year': date.today().year}
 
 @app.route('/thank-you')
 def thank_you():

@@ -1,52 +1,40 @@
 {% extends "base.html" %}
-{% block title %}Exercise Cheat Sheet{% endblock %}
+{% block title %}Exercise Library | Toro Fitness{% endblock %}
 
 {% block content %}
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow">Exercise library</p>
+    <h1>Learn the lifts</h1>
+    <p class="page-hero-subtitle">Short demo videos for the exercises in your program. Search by name, muscle group or equipment.</p>
+  </div>
+</section>
+
 <section class="cheat-sheet">
   <div class="container">
-    <h1>Exercise Cheat Sheet</h1>
-    <form method="get" action="{{ url_for('cheat_sheet') }}" class="cheat-form">
-      <input 
-        type="text" 
-        name="q" 
-        placeholder="Search by exercise name, muscle group, or keyword..." 
-        value="{{ q }}" 
-        autocomplete="off"
-        style="width: 50%; padding: 0.75rem; font-size: 1.1rem;"
-      >
-      <button type="submit" class="btn btn-primary" style="margin-left: 10px;">Search</button>
+    <form method="get" action="{{ url_for('cheat_sheet') }}" class="search-form" role="search">
+      <input type="search" name="q" placeholder="Try &quot;chest&quot;, &quot;dumbbell&quot; or &quot;curl&quot;" value="{{ q }}" autocomplete="off" aria-label="Search exercises">
+      <button type="submit" class="btn btn-primary">Search</button>
+      {% if q %}<a href="{{ url_for('cheat_sheet') }}" class="btn btn-ghost-dark">Clear</a>{% endif %}
     </form>
-    <br>
-    <table class="exercise-table" style="width:100%;border-collapse:collapse;">
-      <thead>
-        <tr style="background-color: #f5f7fa;">
-          <th style="padding:12px;border-bottom:1px solid #eaeaea;">Name</th>
-          <th style="padding:12px;border-bottom:1px solid #eaeaea;">Muscle Group</th>
-          <th style="padding:12px;border-bottom:1px solid #eaeaea;">Video</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for ex in exercises %}
-        <tr>
-          <td style="padding:8px;">{{ ex.name }}</td>
-          <td style="padding:8px;">{{ ex.muscle }}</td>
-          <td style="padding:8px;">
-            <iframe 
-              width="280" 
-              height="158" 
-              src="{{ ex.youtube }}" 
-              frameborder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowfullscreen
-              style="border-radius:8px;"
-            ></iframe>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% if not exercises %}
-      <div style="margin-top:2em; color:#888;">No exercises found matching your search.</div>
+
+    {% if exercises %}
+    <div class="exercise-grid">
+      {% for ex in exercises %}
+      <article class="exercise-card">
+        <div class="video-wrap">
+          <iframe src="{{ ex.youtube }}" title="{{ ex.name }} demo" loading="lazy" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <div class="exercise-info">
+          <h3>{{ ex.name }}</h3>
+          <p>{{ ex.muscle }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="empty-state">No exercises found for "{{ q }}". Try a muscle group like "legs" or "shoulders".</p>
     {% endif %}
   </div>
 </section>
