@@ -3,32 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Toro Fitness | Coaching for Adults 30–60{% endblock %}</title>
-    <meta name="description" content="Online personal training and nutrition coaching for adults in their 30s to 60s. Wedding prep, weight loss and bodybuilding with an ISSA-certified coach.">
+    {%- set page_title %}{% block title %}Toro Fitness | Online Personal Training for Adults 30–60{% endblock %}{% endset %}
+    {%- set page_description %}{% block description %}Online personal training and nutrition coaching for adults 30–60: wedding prep, weight loss and bodybuilding from an ISSA-certified trainer.{% endblock %}{% endset %}
+    <title>{{ page_title }}</title>
+    <meta name="description" content="{{ page_description }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
+    <meta name="theme-color" content="#0f1f33">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Toro Fitness">
+    <meta property="og:title" content="{{ page_title }}">
+    <meta property="og:description" content="{{ page_description }}">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:image" content="{{ site_root }}{{ url_for('static', filename='images/og-image.jpg') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ page_title }}">
+    <meta name="twitter:description" content="{{ page_description }}">
+    <meta name="twitter:image" content="{{ site_root }}{{ url_for('static', filename='images/og-image.jpg') }}">
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f1f33'/%3E%3Ctext x='32' y='45' font-family='Arial Black,Arial' font-weight='900' font-size='36' text-anchor='middle' fill='%23d38b3c'%3ET%3C/text%3E%3C/svg%3E">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>document.documentElement.classList.add('js');setTimeout(function(){if(!window.__toroReady)document.documentElement.classList.remove('js');},2500);</script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "ProfessionalService",
+          "@id": "{{ site_root }}/#business",
+          "name": "Toro Fitness",
+          "url": "{{ site_root }}/",
+          "image": "{{ site_root }}{{ url_for('static', filename='images/og-image.jpg') }}",
+          "description": "Online personal training and nutrition coaching for adults 30 to 60: wedding prep, weight loss and bodybuilding.",
+          "areaServed": "Online",
+          "founder": {"@id": "{{ site_root }}/#coach"},
+          "knowsAbout": ["Personal training", "Weight loss", "Wedding fitness", "Bodybuilding", "Nutrition coaching", "Strength training for adults over 40"]
+        },
+        {
+          "@type": "Person",
+          "@id": "{{ site_root }}/#coach",
+          "name": "Torin Perkins",
+          "jobTitle": "ISSA-Certified Personal Trainer",
+          "worksFor": {"@id": "{{ site_root }}/#business"},
+          "url": "{{ site_root }}{{ url_for('about') }}"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "{{ site_root }}/#website",
+          "url": "{{ site_root }}/",
+          "name": "Toro Fitness",
+          "publisher": {"@id": "{{ site_root }}/#business"}
+        }
+      ]
+    }
+    </script>
+    {% block structured_data %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container nav-inner">
-            <a href="{{ url_for('home') }}" class="logo">TORO<span>FITNESS</span></a>
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="navbar">
+        <nav class="container nav-inner" aria-label="Main">
+            <a href="{{ url_for('home') }}" class="logo" aria-label="Toro Fitness home">TORO<span>FITNESS</span></a>
             <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle menu">
             <label for="nav-toggle" class="nav-toggle-label" aria-hidden="true"><span></span></label>
             <ul class="nav-links">
-                <li><a href="{{ url_for('home') }}#goals">Goals</a></li>
-                <li><a href="{{ url_for('home') }}#plans">Plans</a></li>
-                <li><a href="{{ url_for('about') }}">About</a></li>
-                <li><a href="{{ url_for('cheat_sheet') }}">Exercise Library</a></li>
-                <li><a href="{{ url_for('plan', plan_slug='monthly-coaching') }}" class="btn btn-primary btn-sm">Start Coaching</a></li>
+                {% for g in nav_goals %}
+                <li><a href="{{ url_for('goal_page', goal_slug=g.slug) }}"{% if request.path == url_for('goal_page', goal_slug=g.slug) %} aria-current="page"{% endif %}>{{ g.title }}</a></li>
+                {% endfor %}
+                <li><a href="{{ url_for('about') }}"{% if request.endpoint == 'about' %} aria-current="page"{% endif %}>About</a></li>
+                <li><a href="{{ url_for('cheat_sheet') }}"{% if request.endpoint == 'cheat_sheet' %} aria-current="page"{% endif %}>Exercises</a></li>
+                <li><a href="{{ url_for('home') }}#plans" class="btn btn-primary btn-sm btn-shine">Start Coaching</a></li>
             </ul>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="flash-container">
+            <div class="flash-container" role="status">
                 {% for category, message in messages %}
                     <div class="flash flash-{{ category }}">{{ message }}</div>
                 {% endfor %}
@@ -36,22 +98,33 @@
         {% endif %}
     {% endwith %}
 
-    <main>
+    <main id="main">
         {% block content %}{% endblock %}
     </main>
 
     <footer>
         <div class="container footer-inner">
-            <div>
+            <div class="footer-brand">
                 <a href="{{ url_for('home') }}" class="logo logo-light">TORO<span>FITNESS</span></a>
-                <p class="footer-tag">Strength, fat loss and physique coaching for adults 30–60.</p>
+                <p class="footer-tag">Online strength, fat loss and physique coaching for adults 30–60.</p>
             </div>
-            <ul class="footer-links">
-                <li><a href="{{ url_for('home') }}#goals">Goals</a></li>
-                <li><a href="{{ url_for('home') }}#plans">Plans</a></li>
-                <li><a href="{{ url_for('about') }}">About</a></li>
-                <li><a href="{{ url_for('cheat_sheet') }}">Exercise Library</a></li>
-            </ul>
+            <div>
+                <p class="footer-heading">Coaching</p>
+                <ul class="footer-links">
+                    {% for g in nav_goals %}
+                    <li><a href="{{ url_for('goal_page', goal_slug=g.slug) }}">{{ g.title }} Coaching</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div>
+                <p class="footer-heading">Explore</p>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('home') }}#plans">Plans</a></li>
+                    <li><a href="{{ url_for('about') }}">About Torin</a></li>
+                    <li><a href="{{ url_for('cheat_sheet') }}">Exercise Library</a></li>
+                    <li><a href="{{ url_for('home') }}#faq">FAQ</a></li>
+                </ul>
+            </div>
         </div>
         <div class="container footer-bottom">
             <p>&copy; {{ current_year }} Toro Fitness. ISSA-certified personal training.</p>

@@ -1,0 +1,10 @@
+{# Responsive, optimized image: WebP with JPEG fallback, explicit size to avoid layout shift #}
+{% macro picture(name, alt, w, h, sizes='(max-width: 960px) 90vw, 480px', eager=false, cls='') -%}
+<picture>
+    <source type="image/webp" srcset="{{ url_for('static', filename='images/' ~ name ~ '-600.webp') }} 600w, {{ url_for('static', filename='images/' ~ name ~ '-1000.webp') }} 1000w" sizes="{{ sizes }}">
+    <img src="{{ url_for('static', filename='images/' ~ name ~ '-600.jpg') }}"
+         srcset="{{ url_for('static', filename='images/' ~ name ~ '-600.jpg') }} 600w, {{ url_for('static', filename='images/' ~ name ~ '-1000.jpg') }} 1000w"
+         sizes="{{ sizes }}" alt="{{ alt }}" width="{{ w }}" height="{{ h }}"
+         {% if eager %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async"{% if cls %} class="{{ cls }}"{% endif %}>
+</picture>
+{%- endmacro %}

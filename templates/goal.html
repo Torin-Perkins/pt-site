@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}{{ goal.seo_title }} | Toro Fitness{% endblock %}
+{% block description %}{{ goal.meta_description }}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Service",
+      "name": {{ (goal.title ~ ' Coaching')|tojson }},
+      "serviceType": {{ (goal.title ~ ' personal training and nutrition coaching')|tojson }},
+      "description": {{ goal.meta_description|tojson }},
+      "provider": {"@id": "{{ site_root }}/#business"},
+      "areaServed": "Online",
+      "audience": {"@type": "PeopleAudience", "suggestedMinAge": 30, "suggestedMaxAge": 65},
+      "url": "{{ canonical_url }}"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {% for q, a in goal.faqs %}
+        {"@type": "Question", "name": {{ q|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ a|tojson }}}}{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ site_root }}/"},
+        {"@type": "ListItem", "position": 2, "name": {{ (goal.title ~ ' Coaching')|tojson }}, "item": "{{ canonical_url }}"}
+      ]
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero goal-hero">
+    <div class="hero-glow hero-glow-1" aria-hidden="true"></div>
+    <div class="container">
+        <nav class="breadcrumbs anim-in" style="--d:0" aria-label="Breadcrumb"><a href="{{ url_for('home') }}">Home</a> <span aria-hidden="true">/</span> <span>{{ goal.title }} Coaching</span></nav>
+        <div class="goal-hero-icon anim-zoom" style="--d:1" aria-hidden="true">{{ goal.icon }}</div>
+        <h1 class="anim-up" style="--d:2">{{ goal.h1 }}</h1>
+        <p class="page-hero-subtitle anim-in" style="--d:3">{{ goal.tagline }}</p>
+        <div class="anim-in" style="--d:4"><a href="{{ url_for('plan', plan_slug=goal.plan) }}" class="btn btn-accent btn-lg btn-shine">Start {{ goal.title }} Coaching</a></div>
+    </div>
+</section>
+
+<section class="goal-body">
+    <div class="container goal-layout">
+        <article class="goal-article">
+            <p class="goal-intro" data-reveal>{{ goal.intro }}</p>
+            {% for heading, text in goal.sections %}
+            <section class="goal-block" data-reveal>
+                <h2>{{ heading }}</h2>
+                <p>{{ text }}</p>
+            </section>
+            {% endfor %}
+
+            <section class="goal-block" data-reveal>
+                <h2>{{ goal.title }} coaching FAQ</h2>
+                <div class="faq-list">
+                    {% for q, a in goal.faqs %}
+                    <details class="faq-item">
+                        <summary><h3>{{ q }}</h3><span class="faq-icon" aria-hidden="true"></span></summary>
+                        <p>{{ a }}</p>
+                    </details>
+                    {% endfor %}
+                </div>
+            </section>
+        </article>
+
+        <aside class="goal-aside">
+            <div class="aside-card" data-reveal="right">
+                <h2>Who this is for</h2>
+                <ul class="check-list compact">
+                    {% for item in goal.who_for %}<li>{{ item }}</li>{% endfor %}
+                </ul>
+            </div>
+            <div class="aside-card aside-cta" data-reveal="right" style="--d:1">
+                <p class="eyebrow">Recommended plan</p>
+                <h2>{{ plan.title }}</h2>
+                <p>{{ plan.description }}</p>
+                <a href="{{ url_for('plan', plan_slug=goal.plan) }}" class="btn btn-accent btn-full-width btn-shine">Get Started</a>
+                <a href="{{ url_for('home') }}#plans" class="aside-link">Compare all plans</a>
+            </div>
+        </aside>
+    </div>
+</section>
+
+<section class="related-section">
+    <div class="container">
+        <h2 class="section-title" data-reveal>Other ways I can help</h2>
+        <div class="related-grid">
+            {% for g in others %}
+            <a class="goal-card spotlight" href="{{ url_for('goal_page', goal_slug=g.slug) }}" data-reveal style="--d:{{ loop.index0 }}">
+                <div class="goal-icon" aria-hidden="true">{{ g.icon }}</div>
+                <h3>{{ g.title }} Coaching</h3>
+                <p>{{ g.tagline }}</p>
+                <span class="card-link">Learn more <span aria-hidden="true">→</span></span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

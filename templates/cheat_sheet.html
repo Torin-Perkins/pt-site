@@ -1,12 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Exercise Library | Toro Fitness{% endblock %}
+{% block title %}Exercise Library: How-To Lift Videos | Toro Fitness{% endblock %}
+{% block robots %}{% if q %}noindex, follow{% else %}index, follow{% endif %}{% endblock %}
+{% block description %}Free exercise library with short how-to videos for chest, back, shoulders, arms and leg exercises. Search by exercise, muscle group or equipment.{% endblock %}
 
 {% block content %}
 <section class="page-hero">
   <div class="container">
-    <p class="eyebrow">Exercise library</p>
-    <h1>Learn the lifts</h1>
-    <p class="page-hero-subtitle">Short demo videos for the exercises in your program. Search by name, muscle group or equipment.</p>
+    <p class="eyebrow anim-in" style="--d:0">Exercise library</p>
+    <h1 class="anim-up" style="--d:1">Learn the lifts</h1>
+    <p class="page-hero-subtitle anim-in" style="--d:2">Short demo videos for the exercises in your program. Search by name, muscle group or equipment.</p>
   </div>
 </section>
 
@@ -21,7 +23,7 @@
     {% if exercises %}
     <div class="exercise-grid">
       {% for ex in exercises %}
-      <article class="exercise-card">
+      <article class="exercise-card" data-reveal style="--d:{{ loop.index0 % 4 }}">
         <div class="video-wrap">
           <iframe src="{{ ex.youtube }}" title="{{ ex.name }} demo" loading="lazy" frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

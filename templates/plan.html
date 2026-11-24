@@ -1,23 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %}{{ plan.title }} | Toro Fitness{% endblock %}
+{% block title %}{{ plan.title }} | Online Coaching | Toro Fitness{% endblock %}
+{% block description %}{{ plan.description }} Best for: {{ plan.best_for }}{% endblock %}
 
 {% block content %}
 <section class="page-hero">
     <div class="container">
-        <p class="eyebrow">{{ plan.tagline }}</p>
-        <h1>{{ plan.title }}</h1>
-        <p class="page-hero-subtitle">{{ plan.description }}</p>
+        <p class="eyebrow anim-in" style="--d:0">{{ plan.tagline }}</p>
+        <h1 class="anim-up" style="--d:1">{{ plan.title }}</h1>
+        <p class="page-hero-subtitle anim-in" style="--d:2">{{ plan.description }}</p>
     </div>
 </section>
 
 <section class="plan-details">
     <div class="container plan-details-grid">
-        <div class="plan-info">
+        <div class="plan-info" data-reveal="left">
             <h2>What's included</h2>
             <ul class="feature-list">
                 {% for feature in plan.features %}
-                <li>
+                <li data-reveal style="--d:{{ loop.index0 }}">
                     <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
@@ -32,7 +33,7 @@
             </div>
         </div>
 
-        <div class="inquiry-form-container">
+        <div class="inquiry-form-container" data-reveal="right">
             <h2>Get started</h2>
             <p>Tell me a little about yourself and your goal. I'll get back to you within 24 hours.</p>
 

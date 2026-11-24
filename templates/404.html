@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found | Toro Fitness{% endblock %}
+{% block robots %}noindex{% endblock %}
+{% block content %}
+<section class="thank-you">
+    <div class="container">
+        <h1 class="anim-up">This page skipped leg day.</h1>
+        <p class="anim-in" style="--d:1">We couldn't find the page you were looking for.</p>
+        <a href="{{ url_for('home') }}" class="btn btn-primary anim-in" style="--d:2">Back to Home</a>
+    </div>
+</section>
+{% endblock %}

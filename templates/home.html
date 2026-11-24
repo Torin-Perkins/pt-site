@@ -1,41 +1,71 @@
 {% extends "base.html" %}
+{% from "_macros.html" import picture %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for q, a in faqs %}
+    {"@type": "Question", "name": {{ q|tojson }}, "acceptedAnswer": {"@type": "Answer", "text": {{ a|tojson }}}}{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <section class="hero">
+    <div class="hero-glow hero-glow-1" aria-hidden="true"></div>
+    <div class="hero-glow hero-glow-2" aria-hidden="true"></div>
     <div class="container hero-grid">
         <div class="hero-content">
-            <p class="eyebrow">Online coaching for adults 30–60</p>
-            <h1>Your strongest years<br><span class="highlight">aren't behind you.</span></h1>
-            <p class="hero-subtitle">Personal training and nutrition coaching built for busy adults. Whether you're counting down to your wedding, ready to lose weight for good, or chasing a bodybuilding physique, you'll get a plan that fits your life, your joints and your schedule.</p>
-            <div class="hero-actions">
-                <a href="#plans" class="btn btn-primary btn-lg">See Coaching Plans</a>
+            <p class="eyebrow anim-in" style="--d:0">Online personal training for adults 30–60</p>
+            <h1 class="hero-title">
+                <span class="line"><span class="anim-up" style="--d:1">Your strongest years</span></span>
+                <span class="line"><span class="anim-up highlight" style="--d:2">aren't behind you.</span></span>
+            </h1>
+            <p class="hero-subtitle anim-in" style="--d:3">Online personal training and nutrition coaching for busy adults in their 30s, 40s, 50s and 60s. Whether you're getting in shape for your wedding, ready to lose weight for good, or chasing a bodybuilding physique, you get a plan built around your life, your joints and your schedule.</p>
+            <div class="hero-actions anim-in" style="--d:4">
+                <a href="#plans" class="btn btn-accent btn-lg btn-shine">See Coaching Plans</a>
                 <a href="#goals" class="btn btn-ghost btn-lg">What's your goal?</a>
             </div>
-            <ul class="hero-stats">
+            <ul class="hero-stats anim-in" style="--d:5">
                 <li><strong>ISSA</strong><span>Certified trainer</span></li>
                 <li><strong>Stage</strong><span>Competitive bodybuilder</span></li>
                 <li><strong>24 hrs</strong><span>Inquiry response</span></li>
             </ul>
         </div>
-        <div class="hero-image">
-            <img src="{{ url_for('static', filename='images/trainer-photo.jpg') }}" alt="Coach Torin Perkins" onerror="this.parentElement.style.display='none'">
+        <div class="hero-image anim-zoom" style="--d:2" data-parallax="0.08">
+            {{ picture('trainer-photo', 'Torin Perkins, online personal trainer and competitive bodybuilder, posing on stage', 600, 1021, '(max-width: 960px) 80vw, 440px', eager=true) }}
+            <div class="hero-badge" aria-hidden="true"><span>💪</span> Coach &amp; competitor</div>
         </div>
     </div>
 </section>
 
+<div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+        {% for _ in range(2) %}
+        <span>Wedding Prep</span><span>Weight Loss</span><span>Bodybuilding</span><span>Strength Training</span><span>Nutrition Coaching</span><span>Contest Prep</span><span>Fitness Over 40</span>
+        {% endfor %}
+    </div>
+</div>
+
 <section id="goals" class="goals-section">
     <div class="container">
-        <p class="eyebrow center">Who I coach</p>
-        <h2 class="section-title">Three goals. One coach in your corner.</h2>
-        <p class="section-subtitle">My clients are professionals, parents and partners in their 30s, 40s, 50s and 60s who want real results without living in the gym.</p>
+        <p class="eyebrow center" data-reveal>Who I coach</p>
+        <h2 class="section-title" data-reveal>Three goals. One coach in your corner.</h2>
+        <p class="section-subtitle" data-reveal>My clients are professionals, parents and partners in their 30s, 40s, 50s and 60s who want real results without living in the gym.</p>
         <div class="goals-grid">
             {% for goal in goals %}
-            <article class="goal-card">
+            <a class="goal-card spotlight" href="{{ url_for('goal_page', goal_slug=goal.slug) }}" data-reveal style="--d:{{ loop.index0 }}">
                 <div class="goal-icon" aria-hidden="true">{{ goal.icon }}</div>
-                <h3>{{ goal.title }}</h3>
+                <h3>{{ goal.title }} Coaching</h3>
                 <p class="goal-tagline">{{ goal.tagline }}</p>
                 <p>{{ goal.description }}</p>
-            </article>
+                <span class="card-link">Learn more <span aria-hidden="true">→</span></span>
+            </a>
             {% endfor %}
         </div>
     </div>
@@ -43,30 +73,31 @@
 
 <section class="age-section">
     <div class="container age-grid">
-        <div>
-            <p class="eyebrow">Why age-smart training matters</p>
+        <div data-reveal>
+            <p class="eyebrow">Fitness after 30, 40 and 50</p>
             <h2>Training at 35 isn't training at 20. And training at 55 isn't training at 35.</h2>
+            <p class="age-copy">Your body, schedule and recovery change with every decade. Your program should too.</p>
         </div>
         <ul class="check-list">
-            <li><strong>Joint-friendly programming.</strong> Smart exercise selection and swaps for cranky knees, shoulders and backs.</li>
-            <li><strong>Muscle is medicine.</strong> Building and keeping lean muscle protects your metabolism, bones and energy as you age.</li>
-            <li><strong>Built for a real schedule.</strong> Efficient sessions that fit around work, kids and travel.</li>
-            <li><strong>Recovery counts.</strong> Sleep, stress and hormones are part of the plan, not an afterthought.</li>
-            <li><strong>Sustainable nutrition.</strong> No crash diets. Real food, flexible targets and habits you can keep.</li>
+            <li data-reveal="right" style="--d:0"><strong>Joint-friendly programming.</strong> Smart exercise selection and swaps for cranky knees, shoulders and backs.</li>
+            <li data-reveal="right" style="--d:1"><strong>Muscle is medicine.</strong> Building and keeping lean muscle protects your metabolism, bones and energy as you age.</li>
+            <li data-reveal="right" style="--d:2"><strong>Built for a real schedule.</strong> Efficient sessions that fit around work, kids and travel.</li>
+            <li data-reveal="right" style="--d:3"><strong>Recovery counts.</strong> Sleep, stress and hormones are part of the plan, not an afterthought.</li>
+            <li data-reveal="right" style="--d:4"><strong>Sustainable nutrition.</strong> No crash diets. Real food, flexible targets and habits you can keep.</li>
         </ul>
     </div>
 </section>
 
 <section class="about-section">
     <div class="container about-grid">
-        <div class="about-image">
-            <img src="{{ url_for('static', filename='images/trainer-after.jpg') }}" alt="Torin Perkins after his transformation" onerror="this.parentElement.style.display='none'">
+        <div class="about-image" data-reveal="left">
+            {{ picture('trainer-after', 'Torin Perkins after his 4-year fitness transformation', 600, 800) }}
         </div>
-        <div class="about-content">
+        <div class="about-content" data-reveal="right">
             <p class="eyebrow">Meet your coach</p>
             <h2>I've been where you are.</h2>
             <p>I've battled obesity, an eating disorder and body dysmorphia. I gained 70 lbs, crash-dieted my way into passing out at the gym, and gained it all back. Fitness, done the right way, is what finally pulled me out, and it took me all the way to the bodybuilding stage.</p>
-            <p>As an ISSA-certified trainer, I take what I learned the hard way and turn it into a plan built for you: your goal, your body and your stage of life.</p>
+            <p>As an ISSA-certified personal trainer, I take what I learned the hard way and turn it into a plan built for you: your goal, your body and your stage of life.</p>
             <ul class="pill-list">
                 <li>Evidence-based training</li>
                 <li>Sustainable nutrition</li>
@@ -80,25 +111,25 @@
 
 <section class="how-section">
     <div class="container">
-        <p class="eyebrow center">How it works</p>
-        <h2 class="section-title">From inquiry to results</h2>
+        <p class="eyebrow center" data-reveal>How online coaching works</p>
+        <h2 class="section-title" data-reveal>From inquiry to results</h2>
         <ol class="steps">
-            <li><span class="step-num">1</span><h3>Tell me your goal</h3><p>Pick a plan and send a quick inquiry. Wedding date, target weight, show date: whatever you're working toward.</p></li>
-            <li><span class="step-num">2</span><h3>Get your plan</h3><p>I build training and nutrition around your schedule, equipment, history and any injuries.</p></li>
-            <li><span class="step-num">3</span><h3>Check in and adjust</h3><p>We track progress and tweak the plan so you keep moving forward, not just starting over.</p></li>
+            <li data-reveal style="--d:0"><span class="step-num">1</span><h3>Tell me your goal</h3><p>Pick a plan and send a quick inquiry. Wedding date, target weight, show date: whatever you're working toward.</p></li>
+            <li data-reveal style="--d:1"><span class="step-num">2</span><h3>Get your plan</h3><p>I build training and nutrition around your schedule, equipment, history and any injuries.</p></li>
+            <li data-reveal style="--d:2"><span class="step-num">3</span><h3>Check in and adjust</h3><p>We track progress and tweak the plan so you keep moving forward, not just starting over.</p></li>
         </ol>
     </div>
 </section>
 
 <section id="plans" class="plans-section">
     <div class="container">
-        <p class="eyebrow center">Coaching plans</p>
-        <h2 class="section-title">Choose your plan</h2>
-        <p class="section-subtitle">Flexible options for every goal and budget.</p>
+        <p class="eyebrow center" data-reveal>Coaching plans</p>
+        <h2 class="section-title" data-reveal>Choose your plan</h2>
+        <p class="section-subtitle" data-reveal>Flexible options for every goal.</p>
 
         <div class="plans-grid">
             {% for slug, plan in plans.items() %}
-            <div class="plan-card{% if plan.featured %} featured{% endif %}">
+            <article class="plan-card spotlight{% if plan.featured %} featured{% endif %}" data-reveal style="--d:{{ loop.index0 }}">
                 <span class="plan-badge">{{ plan.tagline }}</span>
                 <h3>{{ plan.title }}</h3>
                 <p class="plan-desc">{{ plan.description }}</p>
@@ -108,18 +139,34 @@
                     {% endfor %}
                 </ul>
                 <p class="plan-best"><strong>Best for:</strong> {{ plan.best_for }}</p>
-                <a href="{{ url_for('plan', plan_slug=slug) }}" class="btn {% if plan.featured %}btn-primary{% else %}btn-secondary{% endif %} btn-full-width">Get Started</a>
-            </div>
+                <a href="{{ url_for('plan', plan_slug=slug) }}" class="btn {% if plan.featured %}btn-primary btn-shine{% else %}btn-secondary{% endif %} btn-full-width">Get Started</a>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section id="faq" class="faq-section">
+    <div class="container faq-container">
+        <p class="eyebrow center" data-reveal>FAQ</p>
+        <h2 class="section-title" data-reveal>Questions about online coaching</h2>
+        <div class="faq-list">
+            {% for q, a in faqs %}
+            <details class="faq-item" data-reveal style="--d:{{ loop.index0 }}">
+                <summary><h3>{{ q }}</h3><span class="faq-icon" aria-hidden="true"></span></summary>
+                <p>{{ a }}</p>
+            </details>
             {% endfor %}
         </div>
     </div>
 </section>
 
 <section class="cta-band">
-    <div class="container">
+    <div class="hero-glow hero-glow-2" aria-hidden="true"></div>
+    <div class="container" data-reveal>
         <h2>Got a date on the calendar?</h2>
         <p>Weddings, reunions, vacations and competitions all go better with a plan. The earlier we start, the better the results.</p>
-        <a href="{{ url_for('plan', plan_slug='monthly-coaching') }}" class="btn btn-accent btn-lg">Start My Countdown</a>
+        <a href="{{ url_for('plan', plan_slug='monthly-coaching') }}" class="btn btn-accent btn-lg btn-shine">Start My Countdown</a>
     </div>
 </section>
 {% endblock %}
