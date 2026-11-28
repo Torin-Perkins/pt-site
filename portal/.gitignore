@@ -1,0 +1,4 @@
+node_modules/
+# dist/ is committed so the Flask site can serve the portal without a Node build step
+# (rebuild with scripts/build-portal.sh after changing portal/src).
+*.local

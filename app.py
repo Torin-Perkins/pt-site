@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, abort, Response
+from flask import Flask, render_template, request, redirect, url_for, flash, abort, Response, send_from_directory
 from datetime import date
 from flask_mail import Mail, Message
 import os
@@ -262,9 +262,32 @@ def goal_page(goal_slug):
     return render_template('goal.html', goal=goal, plan=PLANS[goal['plan']], others=others)
 
 
+# ---------------------------------------------------------------------------
+# Client portal (React app in portal/, built into portal/dist by scripts/build-portal.sh)
+PORTAL_DIR = os.path.join(app.root_path, 'portal', 'dist')
+
+
+@app.route('/portal')
+def portal_root():
+    return redirect('/portal/', code=301)
+
+
+@app.route('/portal/')
+@app.route('/portal/<path:path>')
+def portal(path=''):
+    file_path = os.path.join(PORTAL_DIR, path)
+    if path and os.path.isfile(file_path):
+        # Built assets have content hashes in their names, so they can be cached for a long time
+        return send_from_directory(PORTAL_DIR, path, max_age=60 * 60 * 24 * 365 if path.startswith('assets/') else 3600)
+    if not os.path.isfile(os.path.join(PORTAL_DIR, 'index.html')):
+        abort(404)
+    # Every other /portal/... address is a page inside the app
+    return send_from_directory(PORTAL_DIR, 'index.html', max_age=0)
+
+
 @app.route('/robots.txt')
 def robots():
-    body = f"User-agent: *\nAllow: /\nDisallow: /submit-inquiry\nDisallow: /thank-you\n\nSitemap: {site_root()}/sitemap.xml\n"
+    body = f"User-agent: *\nAllow: /\nDisallow: /submit-inquiry\nDisallow: /thank-you\nDisallow: /portal/\n\nSitemap: {site_root()}/sitemap.xml\n"
     return Response(body, mimetype='text/plain')
 
 

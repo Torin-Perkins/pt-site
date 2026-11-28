@@ -1,0 +1,245 @@
+rules_version = '2';
+
+// Toro Fitness client & coach portal.
+//
+// Roles live in the `role` custom claim ("admin" | "trainer" | "client"),
+// set only by Cloud Functions. Admins can do everything trainers can.
+// Scheduling, availability, roles and billing are written only by Cloud
+// Functions (which bypass these rules) so their business rules can't be
+// skipped; everything else is edited directly from the app.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------- helpers
+    function signedIn() { return request.auth != null; }
+    function role() { return signedIn() ? request.auth.token.get('role', '') : ''; }
+    function isAdmin() { return role() == 'admin'; }
+    function isStaff() { return role() in ['admin', 'trainer']; }
+    function isClient() { return role() == 'client'; }
+    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+    function hasRole() { return role() in ['admin', 'trainer', 'client']; }
+
+    function changes() { return request.resource.data.diff(resource.data).affectedKeys(); }
+    function onlyChanges(keys) { return changes().hasOnly(keys); }
+    function incoming() { return request.resource.data; }
+
+    function isText(v, max) { return v is string && v.size() <= max; }
+    function optText(field, max) { return !(field in incoming()) || incoming()[field] == null || isText(incoming()[field], max); }
+    function isDateString(v) { return v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'); }
+
+    // Server-maintained bookkeeping fields no client may forge.
+    function stampsOk() {
+      return incoming().updatedAt == request.time
+        && (resource == null || incoming().get('createdAt', null) == resource.data.get('createdAt', null))
+        && (resource != null || incoming().createdAt == request.time);
+    }
+
+    // ---------------------------------------------------------- users
+    // users/{uid}: profile. Role, email and timestamps come from Cloud Functions.
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isStaff();
+      allow update: if isSelf(uid)
+        && onlyChanges(['displayName', 'phone', 'photoURL', 'timezone', 'goals',
+                        'emergencyContact', 'preferences'])
+        && optText('displayName', 80) && optText('phone', 30) && optText('goals', 2000);
+      allow create, delete: if false;
+
+      // Client-owned logs. Trainers can read them and leave feedback.
+      function logOk() {
+        return isDateString(incoming().date)
+          && incoming().keys().size() <= 40
+          && optText('notes', 4000)
+          && stampsOk();
+      }
+      function feedbackOnly() {
+        return onlyChanges(['trainerComment', 'reviewedBy', 'reviewedAt'])
+          && optText('trainerComment', 2000)
+          && incoming().reviewedBy == request.auth.uid
+          && incoming().reviewedAt == request.time;
+      }
+      function clientEditOk() {
+        let feedback = ['trainerComment', 'reviewedBy', 'reviewedAt'];
+        return resource == null ? !incoming().keys().hasAny(feedback) : !changes().hasAny(feedback);
+      }
+
+      // { date, workoutId?, assignmentId?, title, durationMin, rpe (1-10),
+      //   exercises: [{ name, sets: [{ reps, weight, done }] }], notes }
+      // Logged by the client, or by a coach during a session (then also
+      // loggedBy, loggedByName, sessionId?, status: in_progress | completed).
+      // Coach-logged workouts can't be edited or deleted by the client.
+      match /workoutLogs/{logId} {
+        function byCoach() { return resource.data.get('loggedBy', null) != null; }
+        function noCoachFields() { return !incoming().keys().hasAny(['loggedBy', 'loggedByName']); }
+        function coachLogOk() {
+          return logOk() && clientEditOk()
+            && (resource == null ? incoming().loggedBy == request.auth.uid : incoming().loggedBy == resource.data.loggedBy)
+            && isText(incoming().get('loggedByName', ''), 80)
+            && incoming().get('status', 'completed') in ['in_progress', 'completed'];
+        }
+        function ownsCoachLog() { return isAdmin() || resource.data.loggedBy == request.auth.uid; }
+
+        allow read: if isSelf(uid) || isStaff();
+        allow create: if (isSelf(uid) && isClient() && logOk() && clientEditOk() && noCoachFields())
+          || (isStaff() && !isSelf(uid) && coachLogOk());
+        allow update: if (isSelf(uid) && isClient() && !byCoach() && logOk() && clientEditOk() && noCoachFields())
+          || (isStaff() && byCoach() && ownsCoachLog() && coachLogOk())
+          || (isStaff() && feedbackOnly());
+        allow delete: if (isSelf(uid) && !byCoach()) || (isStaff() && byCoach() && ownsCoachLog());
+      }
+      // { date, meals: [{ name, description, calories, proteinG, carbsG, fatG }],
+      //   totals: {...}, waterOz, notes }
+      match /nutritionLogs/{logId} {
+        allow read: if isSelf(uid) || isStaff();
+        allow create: if isSelf(uid) && isClient() && logOk() && clientEditOk();
+        allow update: if (isSelf(uid) && isClient() && logOk() && clientEditOk()) || (isStaff() && feedbackOnly());
+        allow delete: if isSelf(uid);
+      }
+      // Check-ins: { date, weight, unit, bodyFatPct, measurements: {...},
+      //   sleepHours, energy (1-5), mood (1-5), symptoms: [...], notes }
+      match /metrics/{logId} {
+        allow read: if isSelf(uid) || isStaff();
+        allow create: if isSelf(uid) && isClient() && logOk() && clientEditOk();
+        allow update: if (isSelf(uid) && isClient() && logOk() && clientEditOk()) || (isStaff() && feedbackOnly());
+        allow delete: if isSelf(uid);
+      }
+    }
+
+    // Private trainer notes about a client. Never visible to the client.
+    match /clientNotes/{clientId} {
+      allow read, write: if isStaff();
+    }
+
+    // ---------------------------------------------------------- trainers
+    // Public coach directory (managed by setUserRole). Trainers edit their bio.
+    match /trainers/{uid} {
+      allow read: if hasRole();
+      allow update: if isSelf(uid) && isStaff()
+        && onlyChanges(['displayName', 'bio', 'photoURL', 'specialties'])
+        && optText('displayName', 80) && optText('bio', 4000);
+      allow create, delete: if false;
+    }
+
+    // ---------------------------------------------------------- workouts
+    // Workout library. Every client can see every published workout.
+    // { title, description, category, level, durationMin, equipment: [...],
+    //   exercises: [{ name, sets, reps, durationSec, restSec, tempo, weight,
+    //   notes, videoUrl }], tags: [...], published, createdBy, createdAt, updatedAt }
+    // Clients must query with where('published', '==', true).
+    match /workouts/{workoutId} {
+      function workoutOk() {
+        return isText(incoming().title, 120) && incoming().title.size() > 0
+          && incoming().published is bool
+          && (!('exercises' in incoming()) || (incoming().exercises is list && incoming().exercises.size() <= 60))
+          && optText('description', 8000)
+          && stampsOk();
+      }
+      allow read: if isStaff() || (hasRole() && resource.data.published == true);
+      allow create: if isStaff() && workoutOk() && incoming().createdBy == request.auth.uid;
+      allow update: if isStaff() && workoutOk() && incoming().createdBy == resource.data.createdBy;
+      allow delete: if isStaff();
+    }
+
+    // Workouts a trainer has assigned to a specific client.
+    // { clientId, trainerId, workoutId, dueDate ("YYYY-MM-DD"), notes,
+    //   completedAt, completedLogId, clientNote }
+    match /assignments/{assignmentId} {
+      function assignmentOk() {
+        return incoming().clientId is string && incoming().workoutId is string
+          && incoming().trainerId == request.auth.uid
+          && (!('dueDate' in incoming()) || incoming().dueDate == null || isDateString(incoming().dueDate))
+          && optText('notes', 4000)
+          && stampsOk();
+      }
+      allow read: if isStaff() || (signedIn() && resource.data.clientId == request.auth.uid);
+      allow create: if isStaff() && assignmentOk();
+      allow update: if (isStaff() && assignmentOk())
+        || (isClient() && resource.data.clientId == request.auth.uid
+            && onlyChanges(['completedAt', 'completedLogId', 'clientNote', 'updatedAt'])
+            && incoming().updatedAt == request.time
+            && optText('clientNote', 2000));
+      allow delete: if isStaff();
+    }
+
+    // ---------------------------------------------------------- nutrition
+    // Nutrition plan for one client.
+    // { clientId, trainerId, title, active, dailyCalories,
+    //   macros: { proteinG, carbsG, fatG, fiberG }, hydrationOz, guidelines,
+    //   meals: [{ name, time, description, options: [...] }], supplements: [...],
+    //   startDate, endDate }
+    match /nutritionPlans/{planId} {
+      function planOk() {
+        return incoming().clientId is string
+          && incoming().trainerId == request.auth.uid
+          && isText(incoming().title, 120)
+          && incoming().active is bool
+          && optText('guidelines', 8000)
+          && stampsOk();
+      }
+      allow read: if isStaff() || (signedIn() && resource.data.clientId == request.auth.uid);
+      allow create, update: if isStaff() && planOk();
+      allow delete: if isStaff();
+    }
+
+    // Shared recipes / meal ideas any client can browse.
+    match /recipes/{recipeId} {
+      allow read: if hasRole();
+      allow write: if isStaff();
+    }
+
+    // ---------------------------------------------------------- scheduling
+    // All written by Cloud Functions (requestSession, respondToSession, ...).
+    match /availability/{trainerId} {
+      allow read: if hasRole();
+      allow write: if false;
+    }
+    // Booked hours (no client details) so the calendar can grey them out.
+    match /slots/{slotId} {
+      allow read: if hasRole();
+      allow write: if false;
+    }
+    match /sessions/{sessionId} {
+      allow read: if isStaff() || (signedIn() && resource.data.clientId == request.auth.uid);
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------- billing
+    // Mirrors of Stripe data, written by Cloud Functions / the Stripe webhook.
+    match /billing/{uid} {
+      allow read: if isSelf(uid) || isStaff();
+      allow write: if false;
+    }
+    match /invoices/{invoiceId} {
+      allow read: if isStaff() || (signedIn() && resource.data.clientId == request.auth.uid);
+      allow write: if false;
+    }
+    match /subscriptions/{subId} {
+      allow read: if isStaff() || (signedIn() && resource.data.clientId == request.auth.uid);
+      allow write: if false;
+    }
+    // Session-credit history (balance is billing/{uid}.sessionCredits).
+    match /creditLedger/{entryId} {
+      allow read: if isStaff() || (signedIn() && resource.data.clientId == request.auth.uid);
+      allow write: if false;
+    }
+    // Membership tier a coach assigned (written by assignMembership).
+    match /membershipAssignments/{clientId} {
+      allow read: if isSelf(clientId) || isStaff();
+      allow write: if false;
+    }
+    match /purchases/{purchaseId} {
+      allow read: if isStaff() || (signedIn() && resource.data.clientId == request.auth.uid);
+      allow write: if false;
+    }
+    // Catalog of packages/memberships: { name, description, priceDisplay,
+    //   stripePriceId, mode: "payment" | "subscription", active, sort }
+    match /billingPlans/{planId} {
+      allow read: if hasRole();
+      allow write: if isAdmin();
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

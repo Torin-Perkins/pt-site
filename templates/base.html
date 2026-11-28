@@ -83,6 +83,7 @@
                 {% endfor %}
                 <li><a href="{{ url_for('about') }}"{% if request.endpoint == 'about' %} aria-current="page"{% endif %}>About</a></li>
                 <li><a href="{{ url_for('cheat_sheet') }}"{% if request.endpoint == 'cheat_sheet' %} aria-current="page"{% endif %}>Exercises</a></li>
+                <li><a href="/portal/" class="nav-login">Client Login</a></li>
                 <li><a href="{{ url_for('home') }}#plans" class="btn btn-primary btn-sm btn-shine">Start Coaching</a></li>
             </ul>
         </nav>
@@ -123,6 +124,7 @@
                     <li><a href="{{ url_for('about') }}">About Torin</a></li>
                     <li><a href="{{ url_for('cheat_sheet') }}">Exercise Library</a></li>
                     <li><a href="{{ url_for('home') }}#faq">FAQ</a></li>
+                    <li><a href="/portal/">Client Login</a></li>
                 </ul>
             </div>
         </div>
